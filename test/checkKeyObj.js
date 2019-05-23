@@ -6,7 +6,7 @@ var isHex = require("../").isHex;
 
 module.exports = {
 
-  structure: function (keythereum, keyObject) {
+  structure: function (puffkeys, keyObject) {
     var keyObjectCrypto = keyObject.Crypto || keyObject.crypto;
     assert.instanceOf(keyObject, Object);
     assert.property(keyObject, "address");
@@ -53,7 +53,7 @@ module.exports = {
     assert(keyObject.version === "1" || keyObject.version === 3);
   },
 
-  values: function (keythereum, t, keyObject) {
+  values: function (puffkeys, t, keyObject) {
     var keyObjectCrypto = keyObject.Crypto || keyObject.crypto;
     assert.strictEqual(keyObject.address, t.expected.address);
     assert.strictEqual(
@@ -99,7 +99,7 @@ module.exports = {
         );
         assert.strictEqual(
           keyObjectCrypto.kdfparams.c,
-          keythereum.constants.pbkdf2.c
+          puffkeys.constants.pbkdf2.c
         );
         assert.strictEqual(
           keyObjectCrypto.kdfparams.prf,
@@ -107,7 +107,7 @@ module.exports = {
         );
         assert.strictEqual(
           keyObjectCrypto.kdfparams.prf,
-          keythereum.constants.pbkdf2.prf
+          puffkeys.constants.pbkdf2.prf
         );
       }
       assert.strictEqual(
@@ -116,7 +116,7 @@ module.exports = {
       );
       assert.strictEqual(
         keyObjectCrypto.kdfparams.dklen,
-        keythereum.constants.pbkdf2.dklen
+        puffkeys.constants.pbkdf2.dklen
       );
       assert.strictEqual(
         keyObjectCrypto.kdfparams.salt,
