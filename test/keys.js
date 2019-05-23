@@ -6,7 +6,7 @@ var fs = require("fs");
 var path = require("path");
 var crypto = require("crypto");
 var assert = require("chai").assert;
-var keythereum = require("../");
+var puffkeys = require("../");
 var checkKeyObj = require("./checkKeyObj");
 
 // timeout for asynchronous unit tests
@@ -18,7 +18,7 @@ var privateKey = crypto.randomBytes(32);
 describe("Check if valid hex-encoded string", function () {
   var test = function (t) {
     it(t.description, function () {
-      t.assertions(keythereum.isHex(t.s));
+      t.assertions(puffkeys.isHex(t.s));
     });
   };
   test({
@@ -75,7 +75,7 @@ describe("Check if valid hex-encoded string", function () {
 describe("Check if valid base64-encoded string", function () {
   var test = function (t) {
     it(t.description, function () {
-      t.assertions(keythereum.isBase64(t.s));
+      t.assertions(puffkeys.isBase64(t.s));
     });
   };
   // test cases: https://github.com/chriso/validator.js/blob/master/test/validators.js
@@ -131,7 +131,7 @@ describe("Check if valid base64-encoded string", function () {
 describe("Convert a string to a Buffer", function () {
   var test = function (t) {
     it(t.description, function () {
-      t.assertions(keythereum.str2buf(t.params.str, t.params.enc));
+      t.assertions(puffkeys.str2buf(t.params.str, t.params.enc));
     });
   };
   test({
@@ -232,7 +232,7 @@ describe("Convert a string to a Buffer", function () {
 describe("Check if selected cipher is available", function () {
   var test = function (t) {
     it(t.description, function () {
-      t.assertions(keythereum.isCipherAvailable(t.cipher));
+      t.assertions(puffkeys.isCipherAvailable(t.cipher));
     });
   };
   test({
@@ -279,9 +279,9 @@ describe("Private key recovery", function () {
 describe("Derive Ethereum address from private key", function () {
   var test = function (t) {
     it(t.description + ": " + t.privateKey, function () {
-      t.assertions(keythereum.privateKeyToAddress(t.privateKey));
-      t.assertions(keythereum.privateKeyToAddress(Buffer.from(t.privateKey, "hex")));
-      t.assertions(keythereum.privateKeyToAddress(Buffer.from(t.privateKey, "hex").toString("base64")));
+      t.assertions(puffkeys.privateKeyToAddress(t.privateKey));
+      t.assertions(puffkeys.privateKeyToAddress(Buffer.from(t.privateKey, "hex")));
+      t.assertions(puffkeys.privateKeyToAddress(Buffer.from(t.privateKey, "hex").toString("base64")));
     });
   };
   test({
@@ -352,13 +352,13 @@ describe("Create random private key, salt and initialization vector", function (
       it("create key " + i + ": " + JSON.stringify(params), function (done) {
 
         // synchronous
-        test(keythereum.create(), keythereum.constants);
-        test(keythereum.create(params), params);
+        test(puffkeys.create(), puffkeys.constants);
+        test(puffkeys.create(params), params);
 
         // asynchronous
-        keythereum.create(null, function (dk) {
-          test(dk, keythereum.constants);
-          keythereum.create(params, function (dk) {
+        puffkeys.create(null, function (dk) {
+          test(dk, puffkeys.constants);
+          puffkeys.create(params, function (dk) {
             test(dk, params);
             done();
           });
@@ -366,7 +366,7 @@ describe("Create random private key, salt and initialization vector", function (
       });
     };
 
-    runtest(keythereum.constants);
+    runtest(puffkeys.constants);
     runtest({ keyBytes: 32, ivBytes: 16 });
   };
 
@@ -380,13 +380,13 @@ describe("Encryption", function () {
     var label = t.input.cipher + ": " + JSON.stringify(t.input.plaintext)+
       " -> " + t.expected.ciphertext;
     it(label, function () {
-      var oldCipher = keythereum.constants.cipher;
-      keythereum.constants.cipher = t.input.cipher;
+      var oldCipher = puffkeys.constants.cipher;
+      puffkeys.constants.cipher = t.input.cipher;
       assert.strictEqual(
-        keythereum.encrypt(t.input.plaintext, t.input.key, t.input.iv).toString("base64"),
+        puffkeys.encrypt(t.input.plaintext, t.input.key, t.input.iv).toString("base64"),
         t.expected.ciphertext
       );
-      keythereum.constants.cipher = oldCipher;
+      puffkeys.constants.cipher = oldCipher;
     });
   };
 
@@ -457,13 +457,13 @@ describe("Decryption", function () {
   var test = function (t) {
     var label = t.input.cipher + ": " + JSON.stringify(t.input.ciphertext) + " -> " + t.expected.plaintext;
     it(label, function () {
-      var oldCipher = keythereum.constants.cipher;
-      keythereum.constants.cipher = t.input.cipher;
+      var oldCipher = puffkeys.constants.cipher;
+      puffkeys.constants.cipher = t.input.cipher;
       assert.strictEqual(
-        keythereum.decrypt(t.input.ciphertext, t.input.key, t.input.iv).toString("hex"),
+        puffkeys.decrypt(t.input.ciphertext, t.input.key, t.input.iv).toString("hex"),
         t.expected.plaintext
       );
-      keythereum.constants.cipher = oldCipher;
+      puffkeys.constants.cipher = oldCipher;
     });
   };
 
@@ -537,23 +537,23 @@ describe("Key derivation", function () {
     var pbkdf2, pbkdf2Sync;
 
     before(function () {
-      pbkdf2 = keythereum.crypto.pbkdf2;
-      pbkdf2Sync = keythereum.crypto.pbkdf2Sync;
+      pbkdf2 = puffkeys.crypto.pbkdf2;
+      pbkdf2Sync = puffkeys.crypto.pbkdf2Sync;
     });
 
     after(function () {
-      keythereum.crypto.pbkdf2 = pbkdf2;
-      keythereum.crypto.pbkdf2Sync = pbkdf2Sync;
+      puffkeys.crypto.pbkdf2 = pbkdf2;
+      puffkeys.crypto.pbkdf2Sync = pbkdf2Sync;
     });
 
     it("using crypto: " + t.input.kdf, function (done) {
       var derivedKey;
       this.timeout(TIMEOUT);
-      keythereum.crypto.pbkdf2 = pbkdf2;
-      keythereum.crypto.pbkdf2Sync = pbkdf2Sync;
+      puffkeys.crypto.pbkdf2 = pbkdf2;
+      puffkeys.crypto.pbkdf2Sync = pbkdf2Sync;
 
       // synchronous
-      derivedKey = keythereum.deriveKey(
+      derivedKey = puffkeys.deriveKey(
         t.input.password,
         t.input.salt,
         { kdf: t.input.kdf, kdfparams: t.input.kdfparams }
@@ -562,7 +562,7 @@ describe("Key derivation", function () {
       assert.strictEqual(derivedKey.toString("hex"), t.expected);
 
       // asynchronous
-      keythereum.deriveKey(
+      puffkeys.deriveKey(
         t.input.password,
         t.input.salt,
         { kdf: t.input.kdf, kdfparams: t.input.kdfparams },
@@ -576,11 +576,11 @@ describe("Key derivation", function () {
     it("using sjcl: " + t.input.kdf, function (done) {
       var derivedKey;
       this.timeout(TIMEOUT);
-      keythereum.crypto.pbkdf2 = undefined;
-      keythereum.crypto.pbkdf2Sync = undefined;
+      puffkeys.crypto.pbkdf2 = undefined;
+      puffkeys.crypto.pbkdf2Sync = undefined;
 
       // synchronous
-      derivedKey = keythereum.deriveKey(
+      derivedKey = puffkeys.deriveKey(
         t.input.password,
         t.input.salt,
         { kdf: t.input.kdf, kdfparams: t.input.kdfparams }
@@ -589,7 +589,7 @@ describe("Key derivation", function () {
       assert.strictEqual(derivedKey.toString("hex"), t.expected);
 
       // asynchronous
-      keythereum.deriveKey(
+      puffkeys.deriveKey(
         t.input.password,
         t.input.salt,
         { kdf: t.input.kdf, kdfparams: t.input.kdfparams },
@@ -625,7 +625,7 @@ describe("Message authentication code", function () {
 
   var test = function (t) {
     it("convert " + JSON.stringify(t.input) + " -> " + t.output, function () {
-      var mac = keythereum.getMAC(t.input.derivedKey, t.input.ciphertext);
+      var mac = puffkeys.getMAC(t.input.derivedKey, t.input.ciphertext);
       assert.strictEqual(mac, t.output);
     });
   };
@@ -655,7 +655,7 @@ describe("Dump private key", function () {
       this.timeout(TIMEOUT);
 
       // synchronous
-      keyObject = keythereum.dump(
+      keyObject = puffkeys.dump(
         t.input.password,
         t.input.privateKey,
         t.input.salt,
@@ -663,11 +663,11 @@ describe("Dump private key", function () {
         { kdf: t.input.kdf, kdfparams: t.input.kdfparams }
       );
       if (keyObject.error) return done(keyObject);
-      checkKeyObj.structure(keythereum, keyObject);
-      checkKeyObj.values(keythereum, t, keyObject);
+      checkKeyObj.structure(puffkeys, keyObject);
+      checkKeyObj.values(puffkeys, t, keyObject);
 
       // asynchronous
-      keythereum.dump(
+      puffkeys.dump(
         t.input.password,
         t.input.privateKey,
         t.input.salt,
@@ -675,14 +675,15 @@ describe("Dump private key", function () {
         { kdf: t.input.kdf, kdfparams: t.input.kdfparams },
         function (keyObj) {
           if (keyObj.error) return done(keyObj);
-          checkKeyObj.structure(keythereum, keyObj);
-          checkKeyObj.values(keythereum, t, keyObj);
+          checkKeyObj.structure(puffkeys, keyObj);
+          checkKeyObj.values(puffkeys, t, keyObj);
           done();
         }
       );
     });
   };
-  test({
+.
+test({
     input: {
       password: "testpassword",
       privateKey: Buffer.from(
@@ -748,7 +749,7 @@ describe("Dump private key", function () {
 describe("Generate keystore filename", function () {
   var test = function (t) {
     it(t.address, function () {
-      t.assertions(keythereum.generateKeystoreFilename(t.address));
+      t.assertions(puffkeys.generateKeystoreFilename(t.address));
     });
   };
   test({
@@ -784,7 +785,7 @@ describe("Export to file", function () {
 
   var keyObj;
 
-  if (keythereum.browser) return;
+  if (puffkeys.browser) return;
 
   keyObj = {
     address: "008aeeda4d805471df9b2a5b0f38a0c3bcba786b",
@@ -812,7 +813,7 @@ describe("Export to file", function () {
     this.timeout(TIMEOUT);
 
     // synchronous
-    keypath = keythereum.exportToFile(keyObj);
+    keypath = puffkeys.exportToFile(keyObj);
     outfile = keypath.split("/");
     assert.isArray(outfile);
     outfile = outfile[outfile.length - 1];
@@ -821,7 +822,7 @@ describe("Export to file", function () {
     fs.unlinkSync(keypath);
 
     // asynchronous
-    keythereum.exportToFile(keyObj, null, function (keyPath) {
+    puffkeys.exportToFile(keyObj, null, function (keyPath) {
       var outFile = keyPath.split("/");
       assert.isArray(outFile);
       outFile = outFile[outFile.length - 1];
@@ -836,16 +837,16 @@ describe("Export to file", function () {
   it("export key to json (browser)", function (done) {
     var json;
     this.timeout(TIMEOUT);
-    keythereum.browser = true;
+    puffkeys.browser = true;
 
     // synchronous
-    json = keythereum.exportToFile(keyObj);
+    json = puffkeys.exportToFile(keyObj);
     assert.strictEqual(json, JSON.stringify(keyObj));
 
     // asynchronous
-    keythereum.exportToFile(keyObj, null, function (json) {
+    puffkeys.exportToFile(keyObj, null, function (json) {
       assert.strictEqual(json, JSON.stringify(keyObj));
-      keythereum.browser = false;
+      puffkeys.browser = false;
       done();
     });
   });
@@ -853,19 +854,19 @@ describe("Export to file", function () {
 
 describe("Import from keystore file", function () {
 
-  if (keythereum.browser) return;
+  if (puffkeys.browser) return;
 
   function test(t) {
     var label = "[" + t.expected.crypto.kdf + "] import " + t.input.address + " from file";
     it(label, function (done) {
       var keyObject;
       this.timeout(TIMEOUT);
-      keyObject = keythereum.importFromFile(t.input.address, t.input.datadir);
-      checkKeyObj.structure(keythereum, keyObject);
-      checkKeyObj.values(keythereum, t, keyObject);
-      keythereum.importFromFile(t.input.address, t.input.datadir, function (keyObj) {
-        checkKeyObj.structure(keythereum, keyObj);
-        checkKeyObj.values(keythereum, t, keyObj);
+      keyObject = puffkeys.importFromFile(t.input.address, t.input.datadir);
+      checkKeyObj.structure(puffkeys, keyObject);
+      checkKeyObj.values(puffkeys, t, keyObject);
+      puffkeys.importFromFile(t.input.address, t.input.datadir, function (keyObj) {
+        checkKeyObj.structure(puffkeys, keyObj);
+        checkKeyObj.values(puffkeys, t, keyObj);
         done();
       });
     });
@@ -1104,11 +1105,11 @@ describe("Recover plaintext private key from key object", function () {
       this.timeout(TIMEOUT);
 
       // synchronous
-      dk = keythereum.recover(t.input.password, t.input.keyObject);
+      dk = puffkeys.recover(t.input.password, t.input.keyObject);
       assert.strictEqual(dk.toString("hex"), t.expected);
 
       // asynchronous
-      keythereum.recover(t.input.password, t.input.keyObject, function (dk) {
+      puffkeys.recover(t.input.password, t.input.keyObject, function (dk) {
         assert.strictEqual(dk.toString("hex"), t.expected);
         done();
       });
@@ -1138,8 +1139,8 @@ describe("Recover plaintext private key from key object", function () {
   };
 
   it("should fail if the password is wrong", function (done) {
-    assert.throws(function () { keythereum.recover("barfoo", foobarKeyObject); }, "message authentication code mismatch");
-    keythereum.recover("barfoo", foobarKeyObject, function (err) {
+    assert.throws(function () { puffkeys.recover("barfoo", foobarKeyObject); }, "message authentication code mismatch");
+    puffkeys.recover("barfoo", foobarKeyObject, function (err) {
       assert.strictEqual(err.message, "message authentication code mismatch");
       done();
     });
