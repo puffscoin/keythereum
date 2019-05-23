@@ -6,8 +6,8 @@ var fs = require("fs");
 var join = require("path").join;
 var crypto = require("crypto");
 var assert = require("chai").assert;
-var geth = require("geth");
-var keythereum = require("../");
+var gpuffs = require("gpuffs");
+var puffkeys = require("../");
 var checkKeyObj = require("./checkKeyObj");
 
 var NUM_TESTS = 1000;
@@ -22,23 +22,23 @@ var options = {
     rpcport: 8547,
     nodiscover: null,
     datadir: DATADIR,
-    ipcpath: join(DATADIR, "geth.ipc"),
+    ipcpath: join(DATADIR, "gpuffs.ipc"),
     password: join(DATADIR, ".password")
   }
 };
 
-var pbkdf2 = keythereum.crypto.pbkdf2;
-var pbkdf2Sync = keythereum.crypto.pbkdf2Sync;
+var pbkdf2 = puffkeys.crypto.pbkdf2;
+var pbkdf2Sync = puffkeys.crypto.pbkdf2Sync;
 
-// geth.debug = true;
+// gpuffs.debug = true;
 
-function createEthereumKey(passphrase) {
-  var dk = keythereum.create();
-  var key = keythereum.dump(passphrase, dk.privateKey, dk.salt, dk.iv);
+function createPuffscoinKey(passphrase) {
+  var dk = puffkeys.create();
+  var key = puffkeys.dump(passphrase, dk.privateKey, dk.salt, dk.iv);
   return JSON.stringify(key);
 }
 
-keythereum.constants.quiet = true;
+puffkeys.constants.quiet = true;
 
 describe("Unlock randomly-generated accounts in geth", function () {
   var password, hashRounds, i;
@@ -52,31 +52,31 @@ describe("Unlock randomly-generated accounts in geth", function () {
       this.timeout(TIMEOUT*2);
 
       if (t.sjcl) {
-        keythereum.crypto.pbkdf2 = undefined;
-        keythereum.crypto.pbkdf2Sync = undefined;
+        puffkeys.crypto.pbkdf2 = undefined;
+        puffkeys.crypto.pbkdf2Sync = undefined;
       } else {
-        keythereum.crypto.pbkdf2 = pbkdf2;
-        keythereum.crypto.pbkdf2Sync = pbkdf2Sync;
+        puffkeys.crypto.pbkdf2 = pbkdf2;
+        puffkeys.crypto.pbkdf2Sync = pbkdf2Sync;
       }
 
-      json = createEthereumKey(t.password);
+      json = createPuffscoinKey(t.password);
       assert.isNotNull(json);
 
       keyObject = JSON.parse(json);
       assert.isObject(keyObject);
-      checkKeyObj.structure(keythereum, keyObject);
+      checkKeyObj.structure(puffkeys, keyObject);
 
-      keythereum.exportToFile(keyObject, join(DATADIR, "keystore"), function (keypath) {
+      puffkeys.exportToFile(keyObject, join(DATADIR, "keystore"), function (keypath) {
         fs.writeFile(options.flags.password, t.password, function (ex) {
           var fail;
           if (ex) return done(ex);
           options.flags.unlock = keyObject.address;
           options.flags.etherbase = keyObject.address;
-          geth.start(options, {
+          gpuffs.start(options, {
             stderr: function (data) {
-              if (geth.debug) process.stdout.write(data);
+              if (gpuffs.debug) process.stdout.write(data);
               if (data.toString().indexOf("16MB") > -1) {
-                geth.trigger(null, geth.proc);
+                gpuffs.trigger(null, gpuffs.proc);
               }
             },
             close: function () {
@@ -91,17 +91,17 @@ describe("Unlock randomly-generated accounts in geth", function () {
           }, function (err, spawned) {
             if (err) return done(err);
             if (!spawned) return done(new Error("where's the geth?"));
-            geth.stdout("data", function (data) {
+            gpuffs.stdout("data", function (data) {
               var unlocked = "Account '" + keyObject.address+
                 "' (" + keyObject.address + ") unlocked.";
               if (data.toString().indexOf(unlocked) > -1) {
-                geth.stop();
+                gpuffs.stop();
               }
             });
-            geth.stderr("data", function (data) {
+            gpuffs.stderr("data", function (data) {
               if (data.toString().indexOf("Fatal") > -1) {
                 fail = new Error(data);
-                geth.stop();
+                gpuffs.stop();
               }
             });
           });
@@ -115,8 +115,8 @@ describe("Unlock randomly-generated accounts in geth", function () {
     password = crypto.randomBytes(Math.ceil(Math.random()*100));
     hashRounds = Math.ceil(Math.random() * 300000);
 
-    keythereum.constants.pbkdf2.c = hashRounds;
-    keythereum.constants.scrypt.n = hashRounds;
+    puffkeys.constants.pbkdf2.c = hashRounds;
+    puffkeys.constants.scrypt.n = hashRounds;
 
     test({
       sjcl: false,
