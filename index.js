@@ -505,7 +505,7 @@ module.exports = {
    * Import key data object from keystore JSON file.
    * (Note: Node.js only!)
    * @param {string} address PUFFScoin address to import.
-   * @param {string=} datadir PUFFScoin data directory (default: ~/.ethereum).
+   * @param {string=} datadir PUFFScoin data directory (default: ~/.puffscoin).
    * @param {function=} cb Callback function (optional).
    * @return {Object} Keystore data file's contents.
    */
