@@ -40,7 +40,7 @@ function createPuffscoinKey(passphrase) {
 
 puffkeys.constants.quiet = true;
 
-describe("Unlock randomly-generated accounts in geth", function () {
+describe("Unlock randomly-generated accounts in gpuffs", function () {
   var password, hashRounds, i;
 
   var test = function (t) {
@@ -90,7 +90,7 @@ describe("Unlock randomly-generated accounts in geth", function () {
             }
           }, function (err, spawned) {
             if (err) return done(err);
-            if (!spawned) return done(new Error("where's the geth?"));
+            if (!spawned) return done(new Error("where's the gpuffs?"));
             gpuffs.stdout("data", function (data) {
               var unlocked = "Account '" + keyObject.address+
                 "' (" + keyObject.address + ") unlocked.";
