@@ -1,2 +1,2 @@
-var keythereum = global.keythereum || require('./');
-global.keythereum = keythereum;
+var puffkeys = global.puffkeys || require('./');
+global.puffkeys = puffkeys;
