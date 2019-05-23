@@ -261,7 +261,7 @@ describe("Check if selected cipher is available", function () {
 describe("Private key recovery", function () {
 
   // password used as secret key for aes-256 cipher
-  var password = "wheethereum";
+  var password = "highforever";
   var secret = crypto.createHash("sha256").update(password).digest("hex");
   var cipher = crypto.createCipher("aes-256-cbc", secret);
   var encryptedPrivateKey = cipher.update(privateKey, "hex", "base64");
@@ -276,7 +276,7 @@ describe("Private key recovery", function () {
   });
 });
 
-describe("Derive Ethereum address from private key", function () {
+describe("Derive PUFFScoin address from private key", function () {
   var test = function (t) {
     it(t.description + ": " + t.privateKey, function () {
       t.assertions(puffkeys.privateKeyToAddress(t.privateKey));
