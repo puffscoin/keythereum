@@ -9,7 +9,7 @@
   },
   "scripts": {
     "test": "mocha test/keys.js",
-    "geth": "mocha -R progress test/keys.js && mocha -R progress test/geth.js",
+    "gpuffs": "mocha -R progress test/keys.js && mocha -R progress test/gpuffs.js",
     "lint": "eslint index.js && eslint gulpfile.js && eslint test/*.js",
     "coverage": "istanbul cover -x **/lib/** ./node_modules/mocha/bin/_mocha test/keys.js",
     "build": "browserify ./exports.js > ./dist/puffkeys.js && uglifyjs ./dist/puffkeys.js > ./dist/puffkeys.min.js",
