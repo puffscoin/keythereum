@@ -13,5 +13,5 @@ test/fixtures/blockchain
 test/fixtures/extra
 test/fixtures/state
 test/fixtures/nodes
-test/fixtures/geth
+test/fixtures/gpuffs
 test/browser/bundle.js
