@@ -1,5 +1,5 @@
 /**
- * Create, import, and export ethereum keys.
+ * Create, import, and export PUFFScoin keys.
  * @author Jack Peterson (jack@tinybike.net)
  */
 
@@ -139,9 +139,9 @@ module.exports = {
   },
 
   /**
-   * Derive Ethereum address from private key.
+   * Derive PUFFScoin address from private key.
    * @param {Buffer|string} privateKey ECDSA private key.
-   * @return {string} Hex-encoded Ethereum address.
+   * @return {string} Hex-encoded PUFFScoin address.
    */
   privateKeyToAddress: function (privateKey) {
     var privateKeyBuffer, publicKey;
@@ -461,7 +461,7 @@ module.exports = {
 
   /**
    * Generate filename for a keystore file.
-   * @param {string} address Ethereum address.
+   * @param {string} address PUFFScoin address.
    * @return {string} Keystore filename.
    */
   generateKeystoreFilename: function (address) {
@@ -504,8 +504,8 @@ module.exports = {
   /**
    * Import key data object from keystore JSON file.
    * (Note: Node.js only!)
-   * @param {string} address Ethereum address to import.
-   * @param {string=} datadir Ethereum data directory (default: ~/.ethereum).
+   * @param {string} address PUFFScoin address to import.
+   * @param {string=} datadir PUFFScoin data directory (default: ~/.ethereum).
    * @param {function=} cb Callback function (optional).
    * @return {Object} Keystore data file's contents.
    */
@@ -531,7 +531,7 @@ module.exports = {
       return filepath;
     }
 
-    datadir = datadir || path.join(process.env.HOME, ".ethereum");
+    datadir = datadir || path.join(process.env.HOME, ".puffscoin");
     keystore = path.join(datadir, "keystore");
     if (!isFunction(cb)) {
       filepath = findKeyfile(keystore, address, fs.readdirSync(keystore));
